@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>麻雀点数管理アプリ</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f5f5f5;
+      padding: 20px;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+    h1 {
+      text-align: center;
+    }
+    .score-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .card h2 {
+      margin-top: 0;
+      font-size: 18px;
+    }
+    .card input[type="text"],
+    .card input[type="number"] {
+      font-size: 16px;
+      padding: 8px;
+      margin-bottom: 8px;
+      width: calc(100% - 16px);
+    }
+    .card button {
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .card button:hover {
+      background: #0056b3;
+    }
+    .score-value {
+      font-weight: bold;
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+    #totalDisplay {
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .warning {
+      color: red;
+    }
+    #resetBtn {
+      display: block;
+      margin: 0 auto;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>麻雀点数管理</h1>
+  <div id="totalDisplay">合計点数: 100000</div>
+  <div class="score-container" id="players">
+    <div class="card">
+      <h2><input type="text" value="プレイヤー1"></h2>
+      <div class="score-value">点数: <span class="score">25000</span></div>
+      <input type="number" class="adjust" placeholder="加減点">
+      <button onclick="updateScore(this)">点数を追加</button>
+    </div>
+    <div class="card">
+      <h2><input type="text" value="プレイヤー2"></h2>
+      <div class="score-value">点数: <span class="score">25000</span></div>
+      <input type="number" class="adjust" placeholder="加減点">
+      <button onclick="updateScore(this)">点数を追加</button>
+    </div>
+    <div class="card">
+      <h2><input type="text" value="プレイヤー3"></h2>
+      <div class="score-value">点数: <span class="score">25000</span></div>
+      <input type="number" class="adjust" placeholder="加減点">
+      <button onclick="updateScore(this)">点数を追加</button>
+    </div>
+    <div class="card">
+      <h2><input type="text" value="プレイヤー4"></h2>
+      <div class="score-value">点数: <span class="score">25000</span></div>
+      <input type="number" class="adjust" placeholder="加減点">
+      <button onclick="updateScore(this)">点数を追加</button>
+    </div>
+  </div>
+  <button id="resetBtn" onclick="resetScores()">リセット</button>
+
+  <script>
+    function updateScore(button) {
+      const card = button.closest('.card');
+      const scoreSpan = card.querySelector('.score');
+      const adjustInput = card.querySelector('.adjust');
+
+      let currentScore = parseInt(scoreSpan.textContent);
+      let adjustment = parseInt(adjustInput.value);
+
+      if (!isNaN(adjustment)) {
+        scoreSpan.textContent = currentScore + adjustment;
+        adjustInput.value = '';
+        updateTotal();
+      }
+    }
+
+    function updateTotal() {
+      const scoreSpans = document.querySelectorAll('.score');
+      let total = 0;
+      scoreSpans.forEach(span => {
+        total += parseInt(span.textContent);
+      });
+      const totalDisplay = document.getElementById('totalDisplay');
+      totalDisplay.textContent = `合計点数: ${total}`;
+      if (total !== 100000) {
+        totalDisplay.classList.add('warning');
+      } else {
+        totalDisplay.classList.remove('warning');
+      }
+    }
+
+    function resetScores() {
+      const scoreSpans = document.querySelectorAll('.score');
+      scoreSpans.forEach(span => {
+        span.textContent = '25000';
+      });
+      updateTotal();
+    }
+  </script>
+</body>
+</html>
