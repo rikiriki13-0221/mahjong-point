@@ -257,24 +257,29 @@
       modalTsumoFields.style.display = "none";
       modalLoser.required = true;
       modalOya.required = false;
-    } else {
+      }
+    else {
       modalRonFields.style.display = "none";
-      modalTsumoFields.style.display = "block";
+      modalTsumoFields.style.display = "none"; // ← 親の入力欄を非表示
       modalLoser.required = false;
-      modalOya.required = true;
+      modalOya.required = false;
+
+    // 自動で親＝東のプレイヤーを選ぶ
+    const eastIndex = winds.indexOf("東");
+    modalOya.value = eastIndex.toString();
     }
+
     fillSelectOptions(modalWinner);
     fillSelectOptions(modalLoser);
     fillSelectOptions(modalOya);
 
     modalWinner.value = "0";
     modalLoser.value = "0";
-    modalOya.value = "0";
     modalPoints.value = "";
 
     modalOverlay.style.display = "flex";
-  }
-
+    }
+  
   function fillSelectOptions(select){
     if(!select) return;
     const val = select.value;
@@ -324,37 +329,40 @@
     }
 
     } else {
-      const oya = Number(modalOya.value);
+      const oya = winds.indexOf("東");  // ← 親は東の人
+      const winnerWind = winds[winner];
       let payers = [0,1,2,3].filter(p => p !== winner);
       let payments = [0,0,0,0];
 
       if(winner === oya){
         const payment = Math.floor(points / 3);
         payers.forEach(p => {
-          scores[p] -= payment;
-          payments[p] = payment;
-        });
+        scores[p] -= payment;
+        payments[p] = payment;
+      });
         scores[winner] += payment * 3;
       } else {
         const childPay = Math.floor(points / 4);
         const oyaPay = childPay * 2;
         payers.forEach(p => {
-          if(p === oya){
-            scores[p] -= oyaPay;
-            payments[p] = oyaPay;
-          } else {
-            scores[p] -= childPay;
-            payments[p] = childPay;
-          }
-        });
-        scores[winner] += oyaPay + childPay * 2;
+        if(p === oya){
+          scores[p] -= oyaPay;
+          payments[p] = oyaPay;
+      } else {
+         scores[p] -= childPay;
+        payments[p] = childPay;
       }
+      });
+      scores[winner] += oyaPay + childPay * 2;
+    }
+
       const paymentSummary = payers.map(p => `${winds[p]} ${playerNames[p]} -${payments[p]}点`).join(", ");
       logAction(`ツモ: ${winds[winner]} ${playerNames[winner]} が ${points} 点 和了 (${paymentSummary})`);
 
-      rotateWinds();
-    }
-
+      if(winds[winner] !== "東") {
+         rotateWinds();
+      }
+  }
     updateScores(scores);
     logCurrentScores();
     modalOverlay.style.display = "none";
