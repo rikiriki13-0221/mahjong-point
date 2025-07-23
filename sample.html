@@ -413,56 +413,58 @@
     }
   }
 
-  function logCurrentScores(){
-    const logEntry = {
-      time: getTimeString(),
-      scores: [...scores]
-    };
-    logs.unshift(logEntry);
-    updateLogTable();
+function logCurrentScores(){
+  const logEntry = {
+    time: getTimeString(),
+    scores: [...scores]
+  };
+  logs.unshift(logEntry);  // 最新を先頭に
+  updateLogTable();
+}
+
+function updateLogTable(){
+  const headerRow = document.querySelector("#logTable thead tr");
+  const rows = [
+    document.getElementById("row0"),
+    document.getElementById("row1"),
+    document.getElementById("row2"),
+    document.getElementById("row3")
+  ];
+
+  // まずヘッダー・行のセルをクリア
+  while(headerRow.children.length > 1){
+    headerRow.removeChild(headerRow.lastChild);
   }
-
-  function updateLogTable(){
-    const headerRow = document.querySelector("#logTable thead tr");
-    const rows = [
-      document.getElementById("row0"),
-      document.getElementById("row1"),
-      document.getElementById("row2"),
-      document.getElementById("row3")
-    ];
-
-    while(headerRow.children.length > 1){
-      headerRow.removeChild(headerRow.lastChild);
+  rows.forEach(row=>{
+    while(row.children.length > 1){
+      row.removeChild(row.lastChild);
     }
-    rows.forEach(row=>{
-      while(row.children.length > 1){
-        row.removeChild(row.lastChild);
+  });
+
+  logs.forEach((log, idx) => {
+    const th = document.createElement("th");
+    th.textContent = log.time;
+    th.style.cursor = "pointer";
+    th.title = "クリックでこの時点の点数に戻す";
+    th.onclick = () => {
+      if(confirm(`${log.time} の点数に戻しますか？`)){
+        // クリックしたidx番目以降だけ残す
+        logs = logs.slice(idx);
+        updateLogTable();
+        updateScores(logs[0].scores);
       }
+    };
+    headerRow.appendChild(th);
+
+    log.scores.forEach((score,i)=>{
+      const td = document.createElement("td");
+      td.textContent = score;
+      rows[i].appendChild(td);
     });
+  });
 
-    logs.forEach((log,idx)=>{
-      const th = document.createElement("th");
-      th.textContent = log.time;
-      th.style.cursor = "pointer";
-      th.title = "クリックでこの時点の点数に戻す";
-      th.onclick = () => {
-        if(confirm(`${log.time} の点数に戻しますか？`)){
-          updateScores(log.scores);
-          logs = logs.slice(0, idx + 1);
-          updateLogTable();
-        }
-      };
-      headerRow.appendChild(th);
-
-      log.scores.forEach((score,i)=>{
-        const td = document.createElement("td");
-        td.textContent = score;
-        rows[i].appendChild(td);
-      });
-    });
-
-    updateLogNames();
-  }
+  updateLogNames();
+}
 
   function updateLogNames(){
     for(let i=0; i<4; i++){
