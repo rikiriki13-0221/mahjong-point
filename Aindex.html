@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>麻雀点数管理アプリ</title>
+<style>
+  body {
+    font-family: sans-serif;
+    margin: 0; padding: 0; background: #f0f0f0;
+    text-align: center;
+  }
+  h1 {
+    padding: 20px 0 10px 0;
+    margin: 0;
+  }
+
+  /* 上部固定の切替ボタン */
+  .top-toggle {
+    position: sticky;
+    top: 0;
+    background: white;
+    padding: 10px 0;
+    text-align: center;
+    z-index: 9999;
+    user-select: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+  .top-toggle button {
+    background: white;
+    border: 2px solid #3498db;
+    border-radius: 5px;
+    color: #3498db;
+    font-weight: bold;
+    margin: 0 10px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background-color 0.3s,color 0.3s;
+    font-size: 16px;
+    min-width: 100px;
+    white-space: nowrap;
+  }
+  .top-toggle button:hover {
+    background-color: #3498db;
+    color: white;
+  }
+  
+  /* プレイヤーのカードを2列に並べる親コンテナ */
+  .players {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    justify-items: center;
+    max-width: 700px;
+    margin: 15px auto 0;
+    padding: 10px;
+  }
+
+  .card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    width: 100%;
+    max-width: 240px;
+    box-sizing: border-box;
+    padding: 15px;
+    text-align: center;
+    user-select: none;
+  }
+  .direction {
+    font-weight: bold;
+    font-size: 20px;
+    margin-bottom: 8px;
+    color: #3498db;
+  }
+  input.name {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 8px;
+    width: 90%;
+    padding: 4px;
+    box-sizing: border-box;
+  }
+  .score {
+    font-size: 26px;
+    color: #333;
+    user-select: text;
+  }
+
+  /* モーダル背景 */
+  .modal-overlay {
+    position: fixed;
+    top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+  }
+
+  /* モーダル内容 */
+  .modal {
+    background: white;
+    border-radius: 12px;
+    padding: 20px 25px;
+    width: 320px;
+    max-width: 90vw;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    text-align: left;
+  }
+  .modal h2 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 20px;
+    color: #3498db;
+    text-align: center;
+  }
+  .modal label {
+    display: block;
+    margin: 12px 0 6px 0;
+    font-weight: bold;
+    font-size: 15px;
+  }
+  .modal select, .modal input[type="number"] {
+    width: 100%;
+    padding: 7px;
+    font-size: 16px;
+    box-sizing: border-box;
+  }
+  .modal-buttons {
+    margin-top: 20px;
+    text-align: center;
+  }
+  .modal-buttons button {
+    padding: 8px 20px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+    margin: 0 10px;
+  }
+  .modal-buttons button.confirm {
+    background: #3498db;
+    color: white;
+  }
+  .modal-buttons button.confirm:hover {
+    background: #2980b9;
+  }
+  .modal-buttons button.cancel {
+    background: #ccc;
+    color: #444;
+  }
+  .modal-buttons button.cancel:hover {
+    background: #aaa;
+  }
+
+  table {
+    margin: 20px auto 40px;
+    border-collapse: collapse;
+    max-width: 95vw;
+    overflow-x: auto;
+  }
+  th, td {
+    border: 1px solid #aaa;
+    padding: 8px 12px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  th {
+    background: #ddd;
+    cursor: pointer;
+    user-select: none;
+  }
+</style>
+</head>
+<body>
+  <h1>麻雀点数管理アプリ</h1>
+
+  <div class="top-toggle">
+    <button id="btnRon">ロン</button>
+    <button id="btnTsumo">ツモ</button>
+    <button id="btnReset">リセット</button>
+  </div>
+
+  <div class="players" id="players"></div>
+
+  <table id="logTable">
+    <thead>
+      <tr><th>時刻</th></tr>
+    </thead>
+    <tbody>
+      <tr id="row0"><td id="name0"></td></tr>
+      <tr id="row1"><td id="name1"></td></tr>
+      <tr id="row2"><td id="name2"></td></tr>
+      <tr id="row3"><td id="name3"></td></tr>
+    </tbody>
+  </table>
+
+  <!-- モーダル -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modalContent">
+      <h2 id="modalTitle">和了情報入力</h2>
+      <form id="modalForm">
+        <label for="modalWinner">和了者</label>
+        <select id="modalWinner" required></select>
+
+        <div id="modalRonFields">
+          <label for="modalLoser">放銃者</label>
+          <select id="modalLoser" required></select>
+        </div>
+
+        <div id="modalTsumoFields" style="display:none;">
+          <label for="modalOya">親</label>
+          <select id="modalOya" required></select>
+        </div>
+
+        <label for="modalPoints">合計点数</label>
+        <input type="number" id="modalPoints" min="1" required />
+
+        <div class="modal-buttons">
+          <button type="submit" class="confirm">反映する</button>
+          <button type="button" class="cancel" id="modalCancel">キャンセル</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<script>
+  const baseWinds = ["東", "南", "西", "北"];
+  let winds = [...baseWinds];
+  let playerNames = ["プレイヤー1","プレイヤー2","プレイヤー3","プレイヤー4"];
+  let scores = [25000,25000,25000,25000];
+  let logs = [];
+  let currentKyoku = 1; // 局（1〜4）
+  let currentBakaze = 0; // 0: 東, 1: 南, 2: 西
+  let honba = 0; // 本場数
+  const bakazeList = ["東", "南", "西"];
+  const btnRon = document.getElementById("btnRon");
+  const btnTsumo = document.getElementById("btnTsumo");
+  const btnReset = document.getElementById("btnReset");
+  const modalOverlay = document.getElementById("modalOverlay");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalForm = document.getElementById("modalForm");
+  const modalWinner = document.getElementById("modalWinner");
+  const modalLoser = document.getElementById("modalLoser");
+  const modalOya = document.getElementById("modalOya");
+  const modalPoints = document.getElementById("modalPoints");
+  const modalRonFields = document.getElementById("modalRonFields");
+  const modalTsumoFields = document.getElementById("modalTsumoFields");
+  const modalCancel = document.getElementById("modalCancel");
+
+  let currentWinType = "ron";
+  
+  function getKyokuString(){
+    return `${bakazeList[currentBakaze]}${currentKyoku}局 / ${honba}本場`;
+  }
+
+  function openModal(type){
+    currentWinType = type;
+    modalTitle.textContent = type === "ron" ? "ロンの点数入力" : "ツモの点数入力";
+    if(type === "ron"){
+      modalRonFields.style.display = "block";
+      modalTsumoFields.style.display = "none";
+      modalLoser.required = true;
+      modalOya.required = false;
+      }
+    else {
+      modalRonFields.style.display = "none";
+      modalTsumoFields.style.display = "none"; // ← 親の入力欄を非表示
+      modalLoser.required = false;
+      modalOya.required = false;
+
+    // 自動で親＝東のプレイヤーを選ぶ
+    const eastIndex = winds.indexOf("東");
+    modalOya.value = eastIndex.toString();
+    }
+
+    fillSelectOptions(modalWinner);
+    fillSelectOptions(modalLoser);
+    fillSelectOptions(modalOya);
+
+    modalWinner.value = "0";
+    modalLoser.value = "0";
+    modalPoints.value = "";
+
+    modalOverlay.style.display = "flex";
+    }
+  
+  function fillSelectOptions(select){
+    if(!select) return;
+    const val = select.value;
+    select.innerHTML = "";
+    for(let i=0; i<4; i++){
+      const opt = document.createElement("option");
+      opt.value = i;
+      opt.textContent = `${winds[i]} ${playerNames[i]}`;
+      select.appendChild(opt);
+    }
+    select.value = val;
+  }
+
+  modalCancel.addEventListener("click", () => {
+    modalOverlay.style.display = "none";
+  });
+
+  modalOverlay.addEventListener("click", e => {
+    if(e.target === modalOverlay){
+      modalOverlay.style.display = "none";
+    }
+  });
+
+  let hasLoggedInitialRound = false; // 最初のラウンド記録済みフラグ（スクリプト冒頭に宣言）
+
+modalForm.addEventListener("submit", e => {
+  e.preventDefault();
+  const winner = Number(modalWinner.value);
+  const points = Number(modalPoints.value);
+
+  if(points <= 0 || isNaN(points)){
+    alert("有効な合計点数を入力してください。");
+    return;
+  }
+
+  if(currentWinType === "ron"){
+    const loser = Number(modalLoser.value);
+    if(winner === loser){
+      alert("和了者と放銃者が同じです！");
+      return;
+    }
+    scores[winner] += points;
+    scores[loser] -= points;
+
+    logAction(`ロン: ${winds[winner]} ${playerNames[winner]} が ${winds[loser]} ${playerNames[loser]} から ${points} 点`);
+
+    if(winds[winner] === "東"){
+      // 東の人がロンなら本場増やすだけ
+      honba++;
+    } else {
+      // 東以外は風を回し本場リセット
+      rotateWinds();
+      honba = 0;
+    }
+
+  } else {
+    const oya = winds.indexOf("東"); // 東が親
+    let payers = [0,1,2,3].filter(p => p !== winner);
+    let payments = [0,0,0,0];
+
+    if(winner === oya){
+      // 親がツモ和了
+      const payment = Math.floor(points / 3);
+      payers.forEach(p => {
+        scores[p] -= payment;
+        payments[p] = payment;
+      });
+      scores[winner] += payment * 3;
+    } else {
+      // 子がツモ和了
+      const childPay = Math.floor(points / 4);
+      const oyaPay = childPay * 2;
+      payers.forEach(p => {
+        if(p === oya){
+          scores[p] -= oyaPay;
+          payments[p] = oyaPay;
+        } else {
+          scores[p] -= childPay;
+          payments[p] = childPay;
+        }
+      });
+      scores[winner] += oyaPay + childPay * 2;
+    }
+
+    const paymentSummary = payers.map(p => `${winds[p]} ${playerNames[p]} -${payments[p]}点`).join(", ");
+    logAction(`ツモ: ${winds[winner]} ${playerNames[winner]} が ${points} 点 和了 (${paymentSummary})`);
+
+    if(winner === oya){
+      // 親がツモったなら本場増やすだけ
+      honba++;
+    } else {
+      // 子のツモは風を回して本場リセット
+      rotateWinds();
+      honba = 0;
+    }
+  }
+
+  updateScores(scores);
+  updateRoundDisplay();
+  logCurrentScores();
+  modalOverlay.style.display = "none";
+});
+
+
+
+  function rotateWinds(){
+    // 東→北→西→南→東 の順に回す
+    const order = ["東", "北", "西", "南"];
+    winds = winds.map(w => {
+    const idx = order.indexOf(w);
+    return order[(idx + 1) % 4];
+    });
+    updatePlayerCards();
+    updateSelectOptions();
+    updateLogNames();
+  }
+
+  function advanceKyoku(winnerIsDealer) {
+    if (winnerIsDealer) {
+      honba++;
+  } else {
+      honba = 0;
+      currentKyoku++;
+    if (currentKyoku > 4) {
+      currentKyoku = 1;
+      currentBakaze++;
+      if (currentBakaze >= bakazeList.length) {
+        alert("西4局まで終了しました。これ以降は未対応です。");
+        currentBakaze = bakazeList.length - 1;
+        currentKyoku = 4;
+        }
+      }
+    }
+  }
+
+
+
+  function logAction(text){
+    console.log("LOG:", text);
+  }
+
+  function updatePlayerCards(){
+    const container = document.getElementById("players");
+    container.innerHTML = "";
+    for(let i=0; i<4; i++){
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const directionDiv = document.createElement("div");
+      directionDiv.className = "direction";
+      directionDiv.textContent = winds[i];
+
+      const nameInput = document.createElement("input");
+      nameInput.type = "text";
+      nameInput.value = playerNames[i];
+      nameInput.className = "name";
+      nameInput.onchange = () => {
+        playerNames[i] = nameInput.value.trim() || `プレイヤー${i+1}`;
+        updateLogNames();
+        updateSelectOptions();
+        updatePlayerCards();
+      };
+
+      const scoreDiv = document.createElement("div");
+      scoreDiv.className = "score";
+      scoreDiv.id = `score${i}`;
+      scoreDiv.textContent = scores[i];
+
+      card.appendChild(directionDiv);
+      card.appendChild(nameInput);
+      card.appendChild(scoreDiv);
+
+      container.appendChild(card);
+    }
+  }
+
+  function updateScores(newScores){
+    scores = [...newScores];
+    for(let i=0; i<4; i++){
+      const scoreDiv = document.getElementById(`score${i}`);
+      if(scoreDiv){
+        scoreDiv.textContent = scores[i];
+      }
+    }
+  }
+
+ function logCurrentScores(){
+    const logEntry = {
+    time: getKyokuString(), // ← ここ！
+    scores: [...scores],
+    winds: [...winds],
+    names: [...playerNames],
+    bakaze: currentBakaze,
+    kyoku: currentKyoku,
+    honba: honba
+    };
+    logs.unshift(logEntry);
+    updateLogTable();
+  }
+
+
+
+  function updateLogTable(){
+    const headerRow = document.querySelector("#logTable thead tr");
+    const rows = [
+    document.getElementById("row0"),
+    document.getElementById("row1"),
+    document.getElementById("row2"),
+    document.getElementById("row3")
+  ];
+
+  // まずヘッダー・行のセルをクリア
+  while(headerRow.children.length > 1){
+    headerRow.removeChild(headerRow.lastChild);
+  }
+  rows.forEach(row=>{
+    while(row.children.length > 1){
+      row.removeChild(row.lastChild);
+    }
+  });
+
+  logs.forEach((log, idx) => {
+    const th = document.createElement("th");
+    th.textContent = log.time;
+    th.style.cursor = "pointer";
+    th.title = "クリックでこの時点の点数に戻す";
+    th.onclick = () => {
+      if(confirm(`${log.time} の点数に戻しますか？`)){
+      logs = logs.slice(idx);
+      updateScores(logs[0].scores);
+      winds = [...logs[0].winds];
+      playerNames = [...logs[0].names];
+      currentBakaze = log.bakaze;
+      currentKyoku = log.kyoku;
+      honba = log.honba;
+      updatePlayerCards();
+      updateSelectOptions();
+      updateLogTable();
+    }
+  };
+
+
+    headerRow.appendChild(th);
+
+    log.scores.forEach((score,i)=>{
+      const td = document.createElement("td");
+      td.textContent = score;
+      rows[i].appendChild(td);
+    });
+  });
+
+  updateLogNames();
+}
+
+  function updateLogNames(){
+    for(let i=0; i<4; i++){
+      const nameCell = document.getElementById(`name${i}`);
+      if(nameCell) nameCell.textContent = `${winds[i]} ${playerNames[i]}`;
+    }
+  }
+
+  function getTimeString(){
+    const now = new Date();
+    return now.getHours().toString().padStart(2,"0")+":"+
+           now.getMinutes().toString().padStart(2,"0")+":"+
+           now.getSeconds().toString().padStart(2,"0");
+  }
+
+  function updateRoundDisplay() {
+    const roundNames = ["東", "南", "西"];
+    const display = document.getElementById("roundDisplay");
+    if (display) {
+    const wind = roundNames[currentRound.windIndex];
+    display.textContent = `${wind}${currentRound.round}局 ${currentRound.honba}本場`;
+  }
+  }  
+
+  function updateSelectOptions(){
+    [modalWinner, modalLoser, modalOya].forEach(sel => {
+      if(!sel) return;
+      const val = sel.value;
+      sel.innerHTML = "";
+      for(let i=0; i<4; i++){
+        const opt = document.createElement("option");
+        opt.value = i;
+        opt.textContent = `${winds[i]} ${playerNames[i]}`;
+        sel.appendChild(opt);
+      }
+      sel.value = val;
+    });
+  }
+
+  btnRon.addEventListener("click", () => openModal("ron"));
+  btnTsumo.addEventListener("click", () => openModal("tsumo"));
+  btnReset.addEventListener("click", () => {
+    if(confirm("全ての点数と名前をリセットしますか？")){
+      winds = [...baseWinds];
+      playerNames = ["プレイヤー1","プレイヤー2","プレイヤー3","プレイヤー4"];
+      scores = [25000,25000,25000,25000];
+      logs = [];
+      updatePlayerCards();
+      updateSelectOptions();
+      updateScores(scores);
+      updateLogTable();
+      currentRound = { windIndex: 0, round: 1, honba: 0 };
+      updateRoundDisplay();
+    }
+  });
+
+  updatePlayerCards();
+  updateSelectOptions();
+  updateScores(scores);
+  logCurrentScores();
+</script>
+</body>
+</html>
