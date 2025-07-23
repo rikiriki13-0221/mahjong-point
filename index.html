@@ -310,74 +310,79 @@
     }
   });
 
-  modalForm.addEventListener("submit", e => {
-    e.preventDefault();
-    const winner = Number(modalWinner.value);
-    const points = Number(modalPoints.value);
+  let hasLoggedInitialRound = false; // 最初のラウンド記録済みフラグ（スクリプト冒頭に宣言）
 
-    if(points <= 0 || isNaN(points)){
-      alert("有効な合計点数を入力してください。");
+modalForm.addEventListener("submit", e => {
+  e.preventDefault();
+  const winner = Number(modalWinner.value);
+  const points = Number(modalPoints.value);
+
+  if(points <= 0 || isNaN(points)){
+    alert("有効な合計点数を入力してください。");
+    return;
+  }
+
+  // 最初のロン/ツモの点数変動時に初期ログを記録
+  if (!hasLoggedInitialRound) {
+    logCurrentScores();  // 現在の点数とラウンド情報でログ登録
+    hasLoggedInitialRound = true;
+  }
+
+  if(currentWinType === "ron"){
+    const loser = Number(modalLoser.value);
+    if(winner === loser){
+      alert("和了者と放銃者が同じです！");
       return;
     }
+    scores[winner] += points;
+    scores[loser] -= points;
 
-    if(currentWinType === "ron"){
-      const loser = Number(modalLoser.value);
-      if(winner === loser){
-        alert("和了者と放銃者が同じです！");
-        return;
-      }
-      scores[winner] += points;
-      scores[loser] -= points;
+    logAction(`ロン: ${winds[winner]} ${playerNames[winner]} が ${winds[loser]} ${playerNames[loser]} から ${points} 点`);
 
-      logAction(`ロン: ${winds[winner]} ${playerNames[winner]} が ${winds[loser]} ${playerNames[loser]} から ${points} 点`);
-
-      const isDealer = winds[winner] === "東";
-      advanceKyoku(isDealer);
-
-      if (!isDealer) {
+    if(winds[winner] !== "東") {
       rotateWinds();
     }
 
+  } else {
+    const oya = winds.indexOf("東");  // 親は東の人
+    let payers = [0,1,2,3].filter(p => p !== winner);
+    let payments = [0,0,0,0];
 
-    } else {
-      const oya = winds.indexOf("東");  // ← 親は東の人
-      const winnerWind = winds[winner];
-      let payers = [0,1,2,3].filter(p => p !== winner);
-      let payments = [0,0,0,0];
-
-      if(winner === oya){
-        const payment = Math.floor(points / 3);
-        payers.forEach(p => {
+    if(winner === oya){
+      const payment = Math.floor(points / 3);
+      payers.forEach(p => {
         scores[p] -= payment;
         payments[p] = payment;
       });
-        scores[winner] += payment * 3;
-      } else {
-        const childPay = Math.floor(points / 4);
-        const oyaPay = childPay * 2;
-        payers.forEach(p => {
+      scores[winner] += payment * 3;
+    } else {
+      const childPay = Math.floor(points / 4);
+      const oyaPay = childPay * 2;
+      payers.forEach(p => {
         if(p === oya){
           scores[p] -= oyaPay;
           payments[p] = oyaPay;
-      } else {
-         scores[p] -= childPay;
-        payments[p] = childPay;
-      }
+        } else {
+          scores[p] -= childPay;
+          payments[p] = childPay;
+        }
       });
       scores[winner] += oyaPay + childPay * 2;
     }
 
-      const paymentSummary = payers.map(p => `${winds[p]} ${playerNames[p]} -${payments[p]}点`).join(", ");
-      logAction(`ツモ: ${winds[winner]} ${playerNames[winner]} が ${points} 点 和了 (${paymentSummary})`);
+    const paymentSummary = payers.map(p => `${winds[p]} ${playerNames[p]} -${payments[p]}点`).join(", ");
+    logAction(`ツモ: ${winds[winner]} ${playerNames[winner]} が ${points} 点 和了 (${paymentSummary})`);
 
-      if(winds[winner] !== "東") {
-         rotateWinds();
-      }
+    if(winds[winner] !== "東") {
+      rotateWinds();
+    }
   }
-    updateScores(scores);
-    logCurrentScores();
-    modalOverlay.style.display = "none";
-  });
+
+  updateScores(scores);
+  logCurrentScores();
+  modalOverlay.style.display = "none";
+});
+
 
   function rotateWinds(){
     // 東→北→西→南→東 の順に回す
