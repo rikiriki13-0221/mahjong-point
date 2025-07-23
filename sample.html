@@ -419,18 +419,21 @@
     }
   }
 
-function logCurrentScores(){
-  const logEntry = {
+  function logCurrentScores(){
+    const logEntry = {
     time: getTimeString(),
-    scores: [...scores]
-  };
-  logs.unshift(logEntry);  // 最新を先頭に
-  updateLogTable();
-}
+    scores: [...scores],
+    winds: [...winds],
+    names: [...playerNames]
+    };
+    logs.unshift(logEntry);  // 最新を先頭に
+    updateLogTable();
+  }
 
-function updateLogTable(){
-  const headerRow = document.querySelector("#logTable thead tr");
-  const rows = [
+
+  function updateLogTable(){
+    const headerRow = document.querySelector("#logTable thead tr");
+    const rows = [
     document.getElementById("row0"),
     document.getElementById("row1"),
     document.getElementById("row2"),
@@ -454,12 +457,16 @@ function updateLogTable(){
     th.title = "クリックでこの時点の点数に戻す";
     th.onclick = () => {
       if(confirm(`${log.time} の点数に戻しますか？`)){
-      // idxより前（新しいログ）を消して、idxのログを一番最新にする
       logs = logs.slice(idx);
-      updateScores(logs[0].scores); // 戻すのはlogs[0]の点数
+      updateScores(logs[0].scores);
+      winds = [...logs[0].winds];
+      playerNames = [...logs[0].names];
+      updatePlayerCards();
+      updateSelectOptions();
       updateLogTable();
     }
   };
+
 
     headerRow.appendChild(th);
 
