@@ -181,6 +181,7 @@
     <button id="btnRon">ロン</button>
     <button id="btnTsumo">ツモ</button>
     <button id="btnReset">リセット</button>
+    <div id="roundStatus" style="margin-top: 10px; font-weight: bold; color: #3498db;"></div>
   </div>
 
   <div class="players" id="players"></div>
@@ -558,14 +559,20 @@ modalForm.addEventListener("submit", e => {
            now.getSeconds().toString().padStart(2,"0");
   }
 
-  function updateRoundDisplay() {
-    const roundNames = ["東", "南", "西"];
-    const display = document.getElementById("roundDisplay");
-    if (display) {
-    const wind = roundNames[currentRound.windIndex];
-    display.textContent = `${wind}${currentRound.round}局 ${currentRound.honba}本場`;
+function updateRoundDisplay() {
+  const roundNames = ["東", "南", "西"];
+  const display = document.getElementById("roundDisplay");
+  const roundText = `${roundNames[currentRound.windIndex]}${currentRound.round}局 / ${currentRound.honba}本場`;
+  if (display) {
+    display.textContent = roundText;
   }
-  }  
+
+  const currentRoundText = document.getElementById("currentRoundText");
+  if (currentRoundText) {
+    currentRoundText.textContent = `現在：${roundText}`;
+  }
+}
+
 
   function updateSelectOptions(){
     [modalWinner, modalLoser, modalOya].forEach(sel => {
