@@ -253,7 +253,10 @@
   let currentWinType = "ron";
   
   function getKyokuString(){
-    return `${bakazeList[currentBakaze]}${currentKyoku}局 / ${honba}本場`;
+    const wind = bakazeList[currentBakaze];
+    const kyoku = currentKyoku;
+    const honbaStr = honba;
+    return `${wind}${kyoku}局 / ${honbaStr}本場\n開始時点の点数`;
   }
 
   function openModal(type){
@@ -510,7 +513,7 @@ modalForm.addEventListener("submit", e => {
 
   logs.forEach((log, idx) => {
     const th = document.createElement("th");
-    th.textContent = log.time;
+    th.innerHTML = log.time.replace(/\n/g, "<br>");
     th.style.cursor = "pointer";
     th.title = "クリックでこの時点の点数に戻す";
     th.onclick = () => {
