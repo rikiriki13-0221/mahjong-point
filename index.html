@@ -322,12 +322,6 @@ modalForm.addEventListener("submit", e => {
     return;
   }
 
-  // 最初のロン/ツモの点数変動時に初期ログを記録
-  if (!hasLoggedInitialRound) {
-    logCurrentScores();  // 現在の点数とラウンド情報でログ登録
-    hasLoggedInitialRound = true;
-  }
-
   if(currentWinType === "ron"){
     const loser = Number(modalLoser.value);
     if(winner === loser){
@@ -339,16 +333,22 @@ modalForm.addEventListener("submit", e => {
 
     logAction(`ロン: ${winds[winner]} ${playerNames[winner]} が ${winds[loser]} ${playerNames[loser]} から ${points} 点`);
 
-    if(winds[winner] !== "東") {
+    if(winds[winner] === "東"){
+      // 東の人がロンなら本場増やすだけ
+      honba++;
+    } else {
+      // 東以外は風を回し本場リセット
       rotateWinds();
+      honba = 0;
     }
 
   } else {
-    const oya = winds.indexOf("東");  // 親は東の人
+    const oya = winds.indexOf("東"); // 東が親
     let payers = [0,1,2,3].filter(p => p !== winner);
     let payments = [0,0,0,0];
 
     if(winner === oya){
+      // 親がツモ和了
       const payment = Math.floor(points / 3);
       payers.forEach(p => {
         scores[p] -= payment;
@@ -356,6 +356,7 @@ modalForm.addEventListener("submit", e => {
       });
       scores[winner] += payment * 3;
     } else {
+      // 子がツモ和了
       const childPay = Math.floor(points / 4);
       const oyaPay = childPay * 2;
       payers.forEach(p => {
@@ -373,15 +374,22 @@ modalForm.addEventListener("submit", e => {
     const paymentSummary = payers.map(p => `${winds[p]} ${playerNames[p]} -${payments[p]}点`).join(", ");
     logAction(`ツモ: ${winds[winner]} ${playerNames[winner]} が ${points} 点 和了 (${paymentSummary})`);
 
-    if(winds[winner] !== "東") {
+    if(winner === oya){
+      // 親がツモったなら本場増やすだけ
+      honba++;
+    } else {
+      // 子のツモは風を回して本場リセット
       rotateWinds();
+      honba = 0;
     }
   }
 
   updateScores(scores);
+  updateRoundDisplay();
   logCurrentScores();
   modalOverlay.style.display = "none";
 });
+
 
 
   function rotateWinds(){
