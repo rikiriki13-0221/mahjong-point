@@ -521,6 +521,7 @@ modalForm.addEventListener("submit", e => {
       if(confirm(`${log.time} の点数に戻しますか？`)){
       logs = logs.slice(idx);
       updateScores(logs[0].scores);
+      updateRoundDisplay();
       winds = [...logs[0].winds];
       playerNames = [...logs[0].names];
       currentBakaze = log.bakaze;
@@ -609,6 +610,7 @@ function updateRoundDisplay() {
   updatePlayerCards();
   updateSelectOptions();
   updateScores(scores);
+  updateRoundDisplay();
   logCurrentScores();
 </script>
 </body>
