@@ -519,20 +519,22 @@ modalForm.addEventListener("submit", e => {
     th.style.cursor = "pointer";
     th.title = "クリックでこの時点の点数に戻す";
     th.onclick = () => {
-      if(confirm(`${log.time} の点数に戻しますか？`)){
-      logs = logs.slice(idx);
-      updateScores(logs[0].scores);
-      updateRoundDisplay();
-      winds = [...logs[0].winds];
-      playerNames = [...logs[0].names];
-      currentBakaze = log.bakaze;
-      currentKyoku = log.kyoku;
-      honba = log.honba;
-      updatePlayerCards();
-      updateSelectOptions();
-      updateLogTable();
-    }
-  };
+  if(confirm(`${log.time} の点数に戻しますか？`)){
+    logs = logs.slice(idx);
+    const logEntry = logs[0];
+    updateScores(logEntry.scores);
+    winds = [...logEntry.winds];
+    playerNames = [...logEntry.names];
+    currentBakaze = logEntry.bakaze;
+    currentKyoku = logEntry.kyoku;
+    honba = logEntry.honba;
+    updatePlayerCards();
+    updateSelectOptions();
+    updateLogTable();
+    updateRoundDisplay();
+  }
+};
+
 
 
     headerRow.appendChild(th);
@@ -563,11 +565,13 @@ modalForm.addEventListener("submit", e => {
 
 function updateRoundDisplay() {
   const roundNames = ["東", "南", "西"];
-  const display = document.getElementById("roundDisplay");
-  const roundText = `${roundNames[currentRound.windIndex]}${currentRound.round}局 / ${currentRound.honba}本場`;
+  const display = document.getElementById("roundStatus");
+  const roundText = `${roundNames[currentBakaze]}${currentKyoku}局 / ${honba}本場`;
   if (display) {
     display.textContent = roundText;
   }
+}
+
 
   const currentRoundText = document.getElementById("currentRoundText");
   if (currentRoundText) {
