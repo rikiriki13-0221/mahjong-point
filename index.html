@@ -8,12 +8,29 @@
   /* プレイヤーのカードを2列に並べる親コンテナ */
   .players {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2列 */
-    gap: 10px; /* カード間の隙間 */
+    grid-template-columns: repeat(2, 1fr); /* 2列固定 */
+    gap: 10px;
     max-width: 700px;
-    margin: 15px auto 0 auto;
+    margin: 15px auto 0;
     padding: 10px;
   }
+
+  .card {
+    width: 100%;        /* カード幅は親グリッドの幅いっぱいに */
+    max-width: 320px;   /* 任意だけど大きすぎないように上限も */
+    box-sizing: border-box;
+    margin: 0 auto;     /* 中央寄せ */
+  }
+  .card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    width: 160px;
+    padding: 15px;
+    text-align: center;
+    user-select: none;
+  }
+
 
   body {
     font-family: sans-serif;
@@ -65,15 +82,6 @@
     max-width: 700px;
     margin: 0 auto;
     margin-top: 15px;
-  }
-  .card {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    width: 160px;
-    padding: 15px;
-    text-align: center;
-    user-select: none;
   }
   .name {
     font-weight: bold;
