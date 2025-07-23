@@ -448,12 +448,13 @@ function updateLogTable(){
     th.title = "クリックでこの時点の点数に戻す";
     th.onclick = () => {
       if(confirm(`${log.time} の点数に戻しますか？`)){
-        // クリックしたidx番目以降だけ残す
-        logs = logs.slice(idx);
-        updateLogTable();
-        updateScores(logs[0].scores);
-      }
-    };
+      // idxより前（新しいログ）を消して、idxのログを一番最新にする
+      logs = logs.slice(idx);
+      updateScores(logs[0].scores); // 戻すのはlogs[0]の点数
+      updateLogTable();
+    }
+  };
+
     headerRow.appendChild(th);
 
     log.scores.forEach((score,i)=>{
