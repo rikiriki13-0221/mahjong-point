@@ -5,6 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>麻雀点数管理アプリ</title>
 <style>
+  /* プレイヤーのカードを2列に並べる親コンテナ */
+  .players {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2列 */
+    gap: 10px; /* カード間の隙間 */
+    max-width: 700px;
+    margin: 15px auto 0 auto;
+    padding: 10px;
+  }
+
+  /* スマホなど狭い画面の場合は1列に */
+  @media (max-width: 480px) {
+    .players {
+    grid-template-columns: 1fr; /* 1列 */
+    }
+  }
+
   body {
     font-family: sans-serif;
     margin: 0; padding: 0; background: #f0f0f0;
@@ -185,7 +202,7 @@
     <button id="btnReset">リセット</button>
   </div>
 
-  <div class="container" id="players"></div>
+  <div class="players" id="players"></div>
 
   <table id="logTable">
     <thead>
