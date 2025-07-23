@@ -8,8 +8,9 @@
   /* プレイヤーのカードを2列に並べる親コンテナ */
   .players {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2列固定 */
+    grid-template-columns: repeat(2, 1fr);
     gap: 10px;
+    justify-items: center;     /* 各カードを中央寄せ */
     max-width: 700px;
     margin: 15px auto 0;
     padding: 10px;
@@ -19,14 +20,14 @@
     background: white;
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    width: 100%;         /* ここを固定160pxから100%に変更 */
-    max-width: 240px;    /* 任意で設定OK */
+    width: 100%;         /* グリッドセルの幅いっぱい */
+    max-width: 240px;    /* カードの最大幅 */
     box-sizing: border-box;
-    margin: 0 auto;
     padding: 15px;
     text-align: center;
     user-select: none;
   }
+
 
   body {
     font-family: sans-serif;
