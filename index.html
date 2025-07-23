@@ -44,7 +44,7 @@
     background-color: #3498db;
     color: white;
   }
-
+  
   /* プレイヤーのカードを2列に並べる親コンテナ */
   .players {
     display: grid;
@@ -184,6 +184,7 @@
   </div>
 
   <div class="players" id="players"></div>
+  <div id="roundDisplay" style="text-align: center; font-weight: bold; margin: 10px;">東1局 0本場</div>
 
   <table id="logTable">
     <thead>
@@ -232,7 +233,10 @@
   let playerNames = ["プレイヤー1","プレイヤー2","プレイヤー3","プレイヤー4"];
   let scores = [25000,25000,25000,25000];
   let logs = [];
-
+  let currentKyoku = 1; // 局（1〜4）
+  let currentBakaze = 0; // 0: 東, 1: 南, 2: 西
+  let honba = 0; // 本場数
+  const bakazeList = ["東", "南", "西"];
   const btnRon = document.getElementById("btnRon");
   const btnTsumo = document.getElementById("btnTsumo");
   const btnReset = document.getElementById("btnReset");
@@ -248,6 +252,10 @@
   const modalCancel = document.getElementById("modalCancel");
 
   let currentWinType = "ron";
+  
+  function getKyokuString(){
+    return `${bakazeList[currentBakaze]}${currentKyoku}局 / ${honba}本場`;
+  }
 
   function openModal(type){
     currentWinType = type;
@@ -324,9 +332,13 @@
 
       logAction(`ロン: ${winds[winner]} ${playerNames[winner]} が ${winds[loser]} ${playerNames[loser]} から ${points} 点`);
 
-      if(winds[winner] !== "東") {
+      const isDealer = winds[winner] === "東";
+      advanceKyoku(isDealer);
+
+      if (!isDealer) {
       rotateWinds();
     }
+
 
     } else {
       const oya = winds.indexOf("東");  // ← 親は東の人
@@ -380,6 +392,25 @@
     updateLogNames();
   }
 
+  function advanceKyoku(winnerIsDealer) {
+    if (winnerIsDealer) {
+      honba++;
+  } else {
+      honba = 0;
+      currentKyoku++;
+    if (currentKyoku > 4) {
+      currentKyoku = 1;
+      currentBakaze++;
+      if (currentBakaze >= bakazeList.length) {
+        alert("南4局まで終了しました。これ以降は未対応です。");
+        currentBakaze = bakazeList.length - 1;
+        currentKyoku = 4;
+        }
+      }
+    }
+  }
+
+
 
   function logAction(text){
     console.log("LOG:", text);
@@ -430,16 +461,20 @@
     }
   }
 
-  function logCurrentScores(){
+ function logCurrentScores(){
     const logEntry = {
-    time: getTimeString(),
+    time: getKyokuString(), // ← ここ！
     scores: [...scores],
     winds: [...winds],
-    names: [...playerNames]
+    names: [...playerNames],
+    bakaze: currentBakaze,
+    kyoku: currentKyoku,
+    honba: honba
     };
-    logs.unshift(logEntry);  // 最新を先頭に
+    logs.unshift(logEntry);
     updateLogTable();
   }
+
 
 
   function updateLogTable(){
@@ -472,6 +507,9 @@
       updateScores(logs[0].scores);
       winds = [...logs[0].winds];
       playerNames = [...logs[0].names];
+      currentBakaze = log.bakaze;
+      currentKyoku = log.kyoku;
+      honba = log.honba;
       updatePlayerCards();
       updateSelectOptions();
       updateLogTable();
@@ -505,6 +543,15 @@
            now.getSeconds().toString().padStart(2,"0");
   }
 
+  function updateRoundDisplay() {
+    const roundNames = ["東", "南", "西"];
+    const display = document.getElementById("roundDisplay");
+    if (display) {
+    const wind = roundNames[currentRound.windIndex];
+    display.textContent = `${wind}${currentRound.round}局 ${currentRound.honba}本場`;
+  }
+  }  
+
   function updateSelectOptions(){
     [modalWinner, modalLoser, modalOya].forEach(sel => {
       if(!sel) return;
@@ -532,6 +579,8 @@
       updateSelectOptions();
       updateScores(scores);
       updateLogTable();
+      currentRound = { windIndex: 0, round: 1, honba: 0 };
+      updateRoundDisplay();
     }
   });
 
