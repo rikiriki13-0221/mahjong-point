@@ -319,7 +319,10 @@
 
       logAction(`ロン: ${winds[winner]} ${playerNames[winner]} が ${winds[loser]} ${playerNames[loser]} から ${points} 点`);
 
+      if(winds[winner] !== "東") {
       rotateWinds();
+    }
+
     } else {
       const oya = Number(modalOya.value);
       let payers = [0,1,2,3].filter(p => p !== winner);
