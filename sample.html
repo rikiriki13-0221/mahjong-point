@@ -358,11 +358,17 @@
   });
 
   function rotateWinds(){
-    winds.push(winds.shift());
+    // 東→北→西→南→東 の順に回す
+    const order = ["東", "北", "西", "南"];
+    winds = winds.map(w => {
+    const idx = order.indexOf(w);
+    return order[(idx + 1) % 4];
+    });
     updatePlayerCards();
     updateSelectOptions();
     updateLogNames();
   }
+
 
   function logAction(text){
     console.log("LOG:", text);
