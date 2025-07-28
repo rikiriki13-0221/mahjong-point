@@ -176,6 +176,31 @@
     cursor: pointer;
     user-select: none;
   }
+  #logWrapper {
+  overflow-x: auto;
+  max-width: 100%;
+  border: 1px solid #ccc;
+  margin-top: 20px;
+}
+
+#logTable {
+  border-collapse: collapse;
+  min-width: 600px;
+  white-space: nowrap;
+}
+
+#logTable th, #logTable td {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+#logTable thead th {
+  position: sticky;
+  top: 0;
+  background: white; /* 背景が透明だと見にくいので白に */
+  z-index: 2;
+}
+
 </style>
 </head>
 <body>
@@ -201,6 +226,24 @@
       <tr id="row3"><td id="name3"></td></tr>
     </tbody>
   </table>
+
+  <div id="logWrapper" style="overflow-x: auto; max-width: 100%;">
+  <table id="logTable">
+    <thead>
+      <tr>
+        <th>時刻</th>
+        <!-- JSでログ時刻が追加される -->
+      </tr>
+    </thead>
+    <tbody>
+      <tr id="row0"><th>東</th></tr>
+      <tr id="row1"><th>南</th></tr>
+      <tr id="row2"><th>西</th></tr>
+      <tr id="row3"><th>北</th></tr>
+    </tbody>
+  </table>
+</div>
+
 
   <!-- モーダル -->
   <div class="modal-overlay" id="modalOverlay">
@@ -485,9 +528,7 @@ modalForm.addEventListener("submit", e => {
       }
       updateScores(scores);
       updatePlayerCards(); // ボタンの表示更新も
-      logAction(`${winds[i]} ${playerNames[i]} が${reachStates[i] ? "リーチ！ (-1000点)" : "リーチ取消 (+1000点)"}`);
-      logCurrentScores();
-    };
+   };
 
       card.appendChild(directionDiv);
       card.appendChild(nameInput);
