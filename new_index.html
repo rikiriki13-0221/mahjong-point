@@ -240,6 +240,7 @@
   let currentKyoku = 1; // 局（1〜4）
   let currentBakaze = 0; // 0: 東, 1: 南, 2: 西
   let honba = 0; // 本場数
+  let reachStates = [false, false, false, false]; // リーチ状態管理
   const bakazeList = ["東", "南", "西"];
   const btnRon = document.getElementById("btnRon");
   const btnTsumo = document.getElementById("btnTsumo");
@@ -260,6 +261,69 @@
   function getKyokuString(){
     return `${bakazeList[currentBakaze]}${currentKyoku}局 / ${honba}本場`;
   }
+
+  function updatePlayerCards(){
+  const container = document.getElementById("players");
+  container.innerHTML = "";
+  for(let i=0; i<4; i++){
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const directionDiv = document.createElement("div");
+    directionDiv.className = "direction";
+    directionDiv.textContent = winds[i];
+
+    const nameInput = document.createElement("input");
+    nameInput.type = "text";
+    nameInput.value = playerNames[i];
+    nameInput.className = "name";
+    nameInput.onchange = () => {
+      playerNames[i] = nameInput.value.trim() || `プレイヤー${i+1}`;
+      updateLogNames();
+      updateSelectOptions();
+      updatePlayerCards();
+    };
+
+    const scoreDiv = document.createElement("div");
+    scoreDiv.className = "score";
+    scoreDiv.id = `score${i}`;
+    scoreDiv.textContent = scores[i];
+
+    const reachBtn = document.createElement("button");
+    reachBtn.textContent = reachStates[i] ? "リーチ取消" : "リーチ";
+    reachBtn.style.marginTop = "10px";
+    reachBtn.style.padding = "6px 12px";
+    reachBtn.style.border = "1px solid #3498db";
+    reachBtn.style.borderRadius = "5px";
+    reachBtn.style.backgroundColor = reachStates[i] ? "#e74c3c" : "#3498db";
+    reachBtn.style.color = "white";
+    reachBtn.style.cursor = "pointer";
+
+    reachBtn.onclick = () => {
+      if(reachStates[i]){
+        // リーチ取消 → +1000点
+        scores[i] += 1000;
+        reachStates[i] = false;
+      } else {
+        // リーチ → -1000点
+        }
+        scores[i] -= 1000;
+        reachStates[i] = true;
+      }
+      updateScores(scores);
+      updatePlayerCards(); // ボタンの表示更新も
+      logAction(`${winds[i]} ${playerNames[i]} が${reachStates[i] ? "リーチ！ (-1000点)" : "リーチ取消 (+1000点)"}`);
+      logCurrentScores();
+    };
+
+    card.appendChild(directionDiv);
+    card.appendChild(nameInput);
+    card.appendChild(scoreDiv);
+    card.appendChild(reachBtn); // ★リーチボタン追加
+
+    container.appendChild(card);
+  }
+}
 
   function openModal(type){
     currentWinType = type;
@@ -393,6 +457,7 @@ modalForm.addEventListener("submit", e => {
   updateRoundDisplay();
   logCurrentScores();
   modalOverlay.style.display = "none";
+  reachStates = [false, false, false, false];
 });
 
 
@@ -597,7 +662,8 @@ modalForm.addEventListener("submit", e => {
       updateScores(scores);
       updateLogTable();
       currentRound = { windIndex: 0, round: 1, honba: 0 };
-      updateRoundDisplay();
+      updateRoundDisplay()
+      reachStates = [false, false, false, false]; // ← btnReset の中に追加
     }
   });
 
