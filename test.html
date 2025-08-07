@@ -42,6 +42,9 @@
     }
     .log-table {
       margin-top: 2em;
+      overflow-x: auto;
+      display: block;
+      white-space: nowrap;
     }
     .log-table td:first-child {
       font-weight: bold;
@@ -146,9 +149,11 @@
       const timeLabel = document.createElement('td');
       timeLabel.textContent = '記録時間';
       timeRow.appendChild(timeLabel);
-      logData.forEach(log => {
+      logData.forEach((log, logIndex) => {
         const cell = document.createElement('td');
         cell.textContent = log.time;
+        cell.classList.add('clickable');
+        cell.onclick = () => restoreLog(logIndex);
         timeRow.appendChild(cell);
       });
       tbody.appendChild(timeRow);
@@ -160,11 +165,9 @@
         playerNameCell.textContent = logData[0].names[i]; // 最新の名前表示
         row.appendChild(playerNameCell);
 
-        logData.forEach((log, logIndex) => {
+        logData.forEach(log => {
           const cell = document.createElement('td');
           cell.textContent = log.scores[i];
-          cell.classList.add('clickable');
-          cell.onclick = () => restoreLog(logIndex);
           row.appendChild(cell);
         });
 
@@ -177,14 +180,12 @@
       supplyLabel.textContent = '供託';
       supplyRow.appendChild(supplyLabel);
 
-      logData.forEach((log, logIndex) => {
+      logData.forEach(log => {
         const cell = document.createElement('td');
         cell.textContent = log.supply;
-        cell.classList.add('clickable');
-        cell.onclick = () => restoreLog(logIndex);
         supplyRow.appendChild(cell);
       });
-
+      
       tbody.appendChild(supplyRow);
     }
 
@@ -197,6 +198,10 @@
       }
       supply = log.supply;
       document.getElementById('supply').textContent = supply;
+
+      logData.splice(0, index);
+
+      renderLog();
     }
 
     function resetScores() {
