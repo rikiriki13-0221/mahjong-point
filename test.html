@@ -43,6 +43,15 @@
     .log-table {
       margin-top: 2em;
     }
+    .log-table td:first-child {
+      font-weight: bold;
+      background: #eee;
+    }
+    .clickable {
+      cursor: pointer;
+      color: blue;
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -58,15 +67,13 @@
   <button onclick="recordLog()">記録する</button>
 
   <table id="log" class="log-table">
-    <thead>
-      <tr id="log-header"></tr>
-    </thead>
     <tbody></tbody>
   </table>
 
   <script>
     const playerCount = 4;
     const players = [];
+    const logData = [];
 
     const playerContainer = document.getElementById('players');
     for (let i = 0; i < playerCount; i++) {
@@ -113,29 +120,54 @@
         return;
       }
 
-      const headerRow = document.getElementById('log-header');
-      if (headerRow.childElementCount === 0) {
-        names.forEach(name => {
-          const th = document.createElement('th');
-          th.textContent = name;
-          headerRow.appendChild(th);
+      logData.unshift({ scores: [...scores], supply: supply });
+      renderLog(names);
+    }
+
+    function renderLog(names) {
+      const tbody = document.querySelector('#log tbody');
+      tbody.innerHTML = '';
+
+      for (let i = 0; i < playerCount; i++) {
+        const row = document.createElement('tr');
+        const nameCell = document.createElement('td');
+        nameCell.textContent = names[i];
+        row.appendChild(nameCell);
+
+        logData.forEach((log, logIndex) => {
+          const cell = document.createElement('td');
+          cell.textContent = log.scores[i];
+          cell.classList.add('clickable');
+          cell.onclick = () => restoreLog(logIndex);
+          row.appendChild(cell);
         });
-        const th = document.createElement('th');
-        th.textContent = '供託';
-        headerRow.appendChild(th);
+
+        tbody.appendChild(row);
       }
 
-      const row = document.createElement('tr');
-      scores.forEach(score => {
-        const td = document.createElement('td');
-        td.textContent = score;
-        row.appendChild(td);
-      });
-      const supplyTd = document.createElement('td');
-      supplyTd.textContent = supply;
-      row.appendChild(supplyTd);
+      const supplyRow = document.createElement('tr');
+      const supplyLabel = document.createElement('td');
+      supplyLabel.textContent = '供託';
+      supplyRow.appendChild(supplyLabel);
 
-      document.querySelector('#log tbody').appendChild(row);
+      logData.forEach((log, logIndex) => {
+        const cell = document.createElement('td');
+        cell.textContent = log.supply;
+        cell.classList.add('clickable');
+        cell.onclick = () => restoreLog(logIndex);
+        supplyRow.appendChild(cell);
+      });
+
+      tbody.appendChild(supplyRow);
+    }
+
+    function restoreLog(index) {
+      const log = logData[index];
+      for (let i = 0; i < playerCount; i++) {
+        document.getElementById(`score${i}`).value = log.scores[i];
+      }
+      supply = log.supply;
+      document.getElementById('supply').textContent = supply;
     }
   </script>
 </body>
