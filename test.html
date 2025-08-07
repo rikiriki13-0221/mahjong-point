@@ -200,12 +200,17 @@
     }
 
     function resetScores() {
+      if (!confirm("本当にリセットしますか？")){
+        return;
+      }
       for (let i = 0; i < playerCount; i++) {
         document.getElementById(`score${i}`).value = 25000;
         document.getElementById(`name${i}`).value = defaultNames[i];
       }
       supply = 0;
       document.getElementById('supply').textContent = supply;
+      logData.length = 0;
+      renderLog();
     }
   </script>
 </body>
