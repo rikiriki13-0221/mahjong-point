@@ -143,6 +143,16 @@ th, td {
   text-decoration: underline;
 }
 
+button.plus {
+  border-color: #4caf50;
+  color: #4caf50;
+}
+
+button.minus {
+  border-color: #f44336;
+  color: #f44336;
+}
+
 @media screen and (max-width: 600px) {
   #players {
     grid-template-columns: 1fr 1fr;
@@ -163,8 +173,8 @@ th, td {
 
   <div class="supply">
     <p>供託点: <span id="supply">0</span></p>
-    <button onclick="addSupply()">+1000</button>
-    <button onclick="subSupply()">-1000</button>
+    <button class="plus" onclick="addSupply()">+1000</button>
+    <button class="minus" onclick="subSupply()">-1000</button>
   </div>
 
 
@@ -190,10 +200,10 @@ th, td {
         <input type="text" placeholder="プレイヤー${i + 1}" value="プレイヤー${i + 1}" id="name${i}" />
         <p><input type="number" id="score${i}" value="25000" /></p>
         <div class="score-controls">
-          <button onclick="adjustScore(${i}, 1000)">+1000</button>
-          <button onclick="adjustScore(${i}, -1000)">-1000</button>
-          <button onclick="adjustScore(${i}, 100)">+100</button>
-          <button onclick="adjustScore(${i}, -100)">-100</button>
+          <button class="plus" onclick="adjustScore(${i}, 1000)">+1000</button>
+          <button class="minus" onclick="adjustScore(${i}, -1000)">-1000</button>
+          <button class="plus" onclick="adjustScore(${i}, 100)">+100</button>
+          <button class="minus" onclick="adjustScore(${i}, -100)">-100</button>
         </div>
       `;
       playerContainer.appendChild(playerDiv);
