@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>麻雀点数記録アプリ</title>
   <style>
     body {
@@ -52,6 +52,19 @@
       color: blue;
       text-decoration: underline;
     }
+    button#resetBtn {
+      margin-top: 1em;
+      padding: 0.5em 1em;
+      font-size: 1em;
+      border-radius: 5px;
+      border: none;
+      background-color: #d9534f;
+      color: white;
+      cursor: pointer;
+    }
+    button#resetBtn:hover {
+      background-color: #c9302c;
+    }
   </style>
 </head>
 <body>
@@ -61,10 +74,12 @@
 
   <div class="supply">
     <p>供託点: <span id="supply">0</span></p>
-    <button onclick="addSupply()">供託に1000点追加</button>
+    <button onclick="addSupply()">+1000</button>
+    <button onclick="subSupply()">-1000</button>
   </div>
 
   <button onclick="recordLog()">記録する</button>
+  <button id="resetBtn" onclick="resetScores()">点数リセット</button>
 
   <table id="log" class="log-table">
     <tbody></tbody>
@@ -97,6 +112,10 @@
       supply += 1000;
       document.getElementById('supply').textContent = supply;
     }
+    function subSupply() {
+      supply -= 1000;
+      document.getElementById('supply').tectContent = supply;
+    }
 
     function adjustScore(index, amount) {
       const input = document.getElementById(`score${index}`);
@@ -120,19 +139,47 @@
         return;
       }
 
-      logData.unshift({ scores: [...scores], supply: supply });
-      renderLog(names);
+      const timestamp = new Date().toLocaleTimeString();
+      logData.unshift({ names: [...names], scores: [...scores], supply: supply, time: timestamp });
+      renderLog();
     }
 
-    function renderLog(names) {
+    function renderLog() {
       const tbody = document.querySelector('#log tbody');
       tbody.innerHTML = '';
 
+      if (logData.length === 0) return;
+
+      // 時刻行
+      const timeRow = document.createElement('tr');
+      const timeLabel = document.createElement('td');
+      timeLabel.textContent = '記録時間';
+      timeRow.appendChild(timeLabel);
+      logData.forEach(log => {
+        const cell = document.createElement('td');
+        cell.textContent = log.time;
+        timeRow.appendChild(cell);
+      });
+      tbody.appendChild(timeRow);
+
+      // プレイヤー名行
+      const nameRow = document.createElement('tr');
+      const nameLabel = document.createElement('td');
+      nameLabel.textContent = '名前';
+      nameRow.appendChild(nameLabel);
+      logData[0].names.forEach((_, i) => {
+        const cell = document.createElement('td');
+        cell.textContent = `プレイヤー${i + 1}`;
+        nameRow.appendChild(cell);
+      });
+      tbody.appendChild(nameRow);
+
+      // 点数行（プレイヤーごとに1行）
       for (let i = 0; i < playerCount; i++) {
         const row = document.createElement('tr');
-        const nameCell = document.createElement('td');
-        nameCell.textContent = names[i];
-        row.appendChild(nameCell);
+        const playerNameCell = document.createElement('td');
+        playerNameCell.textContent = logData[0].names[i]; // 最新の名前表示
+        row.appendChild(playerNameCell);
 
         logData.forEach((log, logIndex) => {
           const cell = document.createElement('td');
@@ -145,6 +192,7 @@
         tbody.appendChild(row);
       }
 
+      // 供託行
       const supplyRow = document.createElement('tr');
       const supplyLabel = document.createElement('td');
       supplyLabel.textContent = '供託';
@@ -162,11 +210,21 @@
     }
 
     function restoreLog(index) {
+      if (!confirm("本当にこの記録に戻しますか？")) return;
       const log = logData[index];
       for (let i = 0; i < playerCount; i++) {
         document.getElementById(`score${i}`).value = log.scores[i];
+        document.getElementById(`name${i}`).value = log.names[i];
       }
       supply = log.supply;
+      document.getElementById('supply').textContent = supply;
+    }
+
+    function resetScores() {
+      for (let i = 0; i < playerCount; i++) {
+        document.getElementById(`score${i}`).value = 25000;
+      }
+      supply = 0;
       document.getElementById('supply').textContent = supply;
     }
   </script>
