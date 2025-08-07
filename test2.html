@@ -135,20 +135,20 @@ th, td {
     <tbody></tbody>
   </table>
 
-  <script>
+ <script>
     const playerCount = 4;
     const players = [];
     const logData = [];
     const defaultNames = [];
     for (let i = 0; i < playerCount; i++) {
-      defaultNames.push(プレイヤー${i + 1});
+      defaultNames.push(`プレイヤー${i + 1}`);
     }
 
     const playerContainer = document.getElementById('players');
     for (let i = 0; i < playerCount; i++) {
       const playerDiv = document.createElement('div');
       playerDiv.className = 'player';
-      playerDiv.innerHTML = 
+      playerDiv.innerHTML = `
         <input type="text" placeholder="プレイヤー${i + 1}" value="プレイヤー${i + 1}" id="name${i}" />
         <p>点数: <input type="number" id="score${i}" value="25000" /></p>
         <div class="score-controls">
@@ -157,7 +157,7 @@ th, td {
           <button onclick="adjustScore(${i}, 100)">+100</button>
           <button onclick="adjustScore(${i}, -100)">-100</button>
         </div>
-      ;
+      `;
       playerContainer.appendChild(playerDiv);
     }
 
@@ -172,7 +172,7 @@ th, td {
     }
 
     function adjustScore(index, amount) {
-      const input = document.getElementById(score${index});
+      const input = document.getElementById(`score${index}`);
       input.value = parseInt(input.value) + amount;
     }
 
@@ -180,8 +180,8 @@ th, td {
       const names = [], scores = [];
       let total = supply;
       for (let i = 0; i < playerCount; i++) {
-        const name = document.getElementById(name${i}).value;
-        const score = parseInt(document.getElementById(score${i}).value);
+        const name = document.getElementById(`name${i}`).value;
+        const score = parseInt(document.getElementById(`score${i}`).value);
         if (isNaN(score)) return alert("点数が正しく入力されていません");
         names.push(name);
         scores.push(score);
@@ -253,8 +253,8 @@ th, td {
       if (!confirm("本当にこの記録に戻しますか？")) return;
       const log = logData[index];
       for (let i = 0; i < playerCount; i++) {
-        document.getElementById(score${i}).value = log.scores[i];
-        document.getElementById(name${i}).value = log.names[i];
+        document.getElementById(`score${i}`).value = log.scores[i];
+        document.getElementById(`name${i}`).value = log.names[i];
       }
       supply = log.supply;
       document.getElementById('supply').textContent = supply;
@@ -269,8 +269,8 @@ th, td {
         return;
       }
       for (let i = 0; i < playerCount; i++) {
-        document.getElementById(score${i}).value = 25000;
-        document.getElementById(name${i}).value = defaultNames[i];
+        document.getElementById(`score${i}`).value = 25000;
+        document.getElementById(`name${i}`).value = defaultNames[i];
       }
       supply = 0;
       document.getElementById('supply').textContent = supply;
