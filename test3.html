@@ -51,16 +51,16 @@ button {
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, auto);
   gap: 1em;
-  margin-bottom: 0 auto 2em;
+  margin-bottom: 2em;
   justify-content: center;
   width: 360px
-}
-#players {
   transform-origin: top center; /* 縮小の基準点 */
   transition: transform 0.2s ease;
 }
 
 .player {
+  width: 180px;
+  box-sizing: border-box;
   background: #fff;
   padding: 1em;
   border-radius: 12px;
@@ -161,12 +161,6 @@ button.minus {
   display: flex;
   justify-content: center;
 }
-
-#players {
-  transform-origin: top center; /* 縮小の基準点 */
-  transition: transform 0.2s ease;
-}
-
 
 @media screen and (max-width: 600px) {
   #players {
