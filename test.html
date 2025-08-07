@@ -76,6 +76,10 @@
     const playerCount = 4;
     const players = [];
     const logData = [];
+    const defaultNames = [];
+    for (let i = 0; i < playerCount; i++) {
+      defaultNames.push(`プレイヤー${i + 1}`);
+    }
 
     const playerContainer = document.getElementById('players');
     for (let i = 0; i < playerCount; i++) {
@@ -100,7 +104,7 @@
       document.getElementById('supply').textContent = supply;
     }
     function subSupply() {
-      supply -= 1000;
+      if(supply >= 1000) supply -= 1000;
       document.getElementById('supply').textContent = supply;
     }
 
@@ -126,7 +130,7 @@
         return;
       }
 
-      const timestamp = new Date().toLocaleTimeString();
+      const timestamp = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
       logData.unshift({ names: [...names], scores: [...scores], supply: supply, time: timestamp });
       renderLog();
     }
@@ -198,6 +202,7 @@
     function resetScores() {
       for (let i = 0; i < playerCount; i++) {
         document.getElementById(`score${i}`).value = 25000;
+        document.getElementById(`name${i}`).value = defaultNames[i];
       }
       supply = 0;
       document.getElementById('supply').textContent = supply;
