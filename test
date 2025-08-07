@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>麻雀点数記録アプリ</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 1em;
+      background: #f9f9f9;
+    }
+    .player {
+      background: #fff;
+      padding: 1em;
+      margin: 1em 0;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .player input[type="text"] {
+      width: 30%;
+      margin-bottom: 0.5em;
+    }
+    .score-controls button {
+      margin: 0.2em;
+    }
+    .supply {
+      margin-top: 1em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 2em;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 0.5em;
+      text-align: center;
+    }
+    .log-table {
+      margin-top: 2em;
+    }
+  </style>
+</head>
+<body>
+  <h1>麻雀点数記録アプリ</h1>
+
+  <div id="players"></div>
+
+  <div class="supply">
+    <p>供託点: <span id="supply">0</span></p>
+    <button onclick="addSupply()">供託に1000点追加</button>
+  </div>
+
+  <button onclick="recordLog()">記録する</button>
+
+  <table id="log" class="log-table">
+    <thead>
+      <tr id="log-header"></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const playerCount = 4;
+    const players = [];
+
+    const playerContainer = document.getElementById('players');
+    for (let i = 0; i < playerCount; i++) {
+      const playerDiv = document.createElement('div');
+      playerDiv.className = 'player';
+      playerDiv.innerHTML = `
+        <input type="text" placeholder="プレイヤー${i + 1}" value="プレイヤー${i + 1}" id="name${i}" />
+        <p>点数: <input type="number" id="score${i}" value="25000" /></p>
+        <div class="score-controls">
+          <button onclick="adjustScore(${i}, 1000)">+1000</button>
+          <button onclick="adjustScore(${i}, -1000)">-1000</button>
+          <button onclick="adjustScore(${i}, 100)">+100</button>
+          <button onclick="adjustScore(${i}, -100)">-100</button>
+        </div>
+      `;
+      playerContainer.appendChild(playerDiv);
+    }
+
+    let supply = 0;
+    function addSupply() {
+      supply += 1000;
+      document.getElementById('supply').textContent = supply;
+    }
+
+    function adjustScore(index, amount) {
+      const input = document.getElementById(`score${index}`);
+      input.value = parseInt(input.value) + amount;
+    }
+
+    function recordLog() {
+      const names = [], scores = [];
+      let total = supply;
+      for (let i = 0; i < playerCount; i++) {
+        const name = document.getElementById(`name${i}`).value;
+        const score = parseInt(document.getElementById(`score${i}`).value);
+        if (isNaN(score)) return alert("点数が正しく入力されていません");
+        names.push(name);
+        scores.push(score);
+        total += score;
+      }
+
+      if (total !== 100000) {
+        alert("合計点が100000点ではありません（現在: " + total + "点）");
+        return;
+      }
+
+      const headerRow = document.getElementById('log-header');
+      if (headerRow.childElementCount === 0) {
+        names.forEach(name => {
+          const th = document.createElement('th');
+          th.textContent = name;
+          headerRow.appendChild(th);
+        });
+        const th = document.createElement('th');
+        th.textContent = '供託';
+        headerRow.appendChild(th);
+      }
+
+      const row = document.createElement('tr');
+      scores.forEach(score => {
+        const td = document.createElement('td');
+        td.textContent = score;
+        row.appendChild(td);
+      });
+      const supplyTd = document.createElement('td');
+      supplyTd.textContent = supply;
+      row.appendChild(supplyTd);
+
+      document.querySelector('#log tbody').appendChild(row);
+    }
+  </script>
+</body>
+</html>
