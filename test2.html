@@ -12,6 +12,25 @@
   background: #f2f2f2;
 }
 
+    #top-buttons {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  padding: 0.8em 1em;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  display: flex;
+  justify-content: center;
+  gap: 1em;
+  z-index: 1000;
+}
+
+body {
+  margin-top: 4em;
+}
+
+
 h1 {
   text-align: center;
   font-size: 1.8em;
@@ -126,14 +145,18 @@ th, td {
 
   <div id="players"></div>
 
+    <div id="top-buttons">
+  <button onclick="recordLog()">記録する</button>
+  <button onclick="resetScores()">点数リセット</button>
+  </div>
+
   <div class="supply">
     <p>供託点: <span id="supply">0</span></p>
     <button onclick="addSupply()">+1000</button>
     <button onclick="subSupply()">-1000</button>
   </div>
 
-  <button onclick="recordLog()">記録する</button>
-  <button onclick="resetScores()">点数リセット</button>
+
 
   <table id="log" class="log-table">
     <tbody></tbody>
