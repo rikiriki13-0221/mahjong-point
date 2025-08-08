@@ -46,6 +46,17 @@ button {
   cursor: pointer;
   transition: all 0.2s ease;
 }
+
+a.pdf-button {
+  font-size: 1em;
+  padding: 0.5em;
+  border: 2px solid #2196f3;
+  background: #fff;
+  color: #2196f3;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
     
 #players {
   display: grid;
@@ -181,8 +192,9 @@ button {
   <div id="players"></div>
 </div>
     <div id="top-buttons">
+  <a href="https://mj-onemore.com/wp-content/uploads/YakuTensu-OnemoreMJ.pdf" target="_blank" class="pdf-button">早見表</a>
   <button onclick="recordLog()">記録する</button>
-  <button onclick="resetScores()">点数リセット</button>
+  <button onclick="resetScores()">リセット</button>
   </div>
 
   <div class="supply">
