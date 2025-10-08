@@ -66,7 +66,8 @@ a.pdf-button {
   gap: 1em;
   margin-bottom: 0;
   justify-content: center;
-  width: 360px;
+  width: 100%;
+  max-width: 360px;
   transform-origin: top center; /* 縮小の基準点 */
   transition: transform 0.2s ease;
 }
@@ -209,8 +210,20 @@ button {
     <tbody></tbody>
   </table>
 
+  <div class="button-group">
+    <button onclick="setPlayerCount(3)">三麻</button>
+    <button onclick="setPlayerCount(4)">四麻</button>
+  </div>
+
+
  <script>
-    const playerCount = 4;
+    window.onload = function() {
+    createPlayers();
+    resizePlayers();
+  };
+
+    let playerCount = 4;
+    let totalPoints = 100000;
     const players = [];
     const logData = [];
     const defaultNames = [];
@@ -218,13 +231,16 @@ button {
       defaultNames.push(`プレイヤー${i + 1}`);
     }
 
-    const playerContainer = document.getElementById('players');
-    for (let i = 0; i < playerCount; i++) {
+    function createPlayers() {
+      const playerContainer = document.getElementById('players');
+      document.getElementById('players').innerHTML = '';
+      const defaultScore = (playerCount === 3) ? 35000 : 25000;
+      for (let i = 0; i < playerCount; i++) {
       const playerDiv = document.createElement('div');
       playerDiv.className = 'player';
       playerDiv.innerHTML = `
         <input type="text" placeholder="プレイヤー${i + 1}" value="プレイヤー${i + 1}" id="name${i}" />
-        <p><input type="number" id="score${i}" value="25000" /></p>
+        <p><input type="number" id="score${i}" value="${defaultScore}" /></p>
         <div class="score-controls">
           <button class="plus" onclick="adjustScore(${i}, 1000)">+1000</button>
           <button class="minus" onclick="adjustScore(${i}, -1000)">-1000</button>
@@ -234,6 +250,20 @@ button {
       `;
       playerContainer.appendChild(playerDiv);
     }
+    }
+
+    function setPlayerCount(count){
+      if(!confirm(`${count}人戦に変更しますか？（現在のデータは消えます）`)) return;
+      playerCount = count;
+      totalPoints = (count === 3) ? 105000 : 100000;
+      defaultNames.length = 0;
+      for (let i = 0; i < playerCount; i++) {
+        defaultNames.push(`プレイヤー${i + 1}`);
+      }
+      createPlayers();
+      resetScores();
+    }
+    
 
    function resizePlayers() {
    const wrapperWidth = window.innerWidth;
@@ -276,8 +306,8 @@ button {
         total += score;
       }
 
-      if (total !== 100000) {
-        alert("合計点が100000点ではありません（現在: " + total + "点）");
+      if (total !== totalPoints) {
+        alert(`合計点が${totalPoints}点ではありません（現在:${total}点）`);
         return;
       }
 
@@ -356,8 +386,9 @@ button {
       if (!confirm("本当にリセットしますか？")){
         return;
       }
+      const defaultScore = (playerCount === 3) ? 35000 : 25000;
       for (let i = 0; i < playerCount; i++) {
-        document.getElementById(`score${i}`).value = 25000;
+        document.getElementById(`score${i}`).value = defaultScore;
         document.getElementById(`name${i}`).value = defaultNames[i];
       }
       supply = 0;
