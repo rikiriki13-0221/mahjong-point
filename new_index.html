@@ -170,6 +170,13 @@ button.minus {
   color: #f44336;
 }
 
+button.convert{
+  display: flex;
+  justify-content: center;
+  gap: 1em;
+  margin-top: 1em;
+}
+
 #players-wrapper {
   width: 100vw;  /* ビューポートの幅に合わせる */
   display: flex;
@@ -210,7 +217,7 @@ button {
     <tbody></tbody>
   </table>
 
-  <div class="button-group">
+  <div class="convert">
     <button onclick="setPlayerCount(3)">三麻</button>
     <button onclick="setPlayerCount(4)">四麻</button>
   </div>
